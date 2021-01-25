@@ -129,24 +129,6 @@ function autoSyncSaves() {
 	AUTOSYNC=($(systemctl list-unit-files | awk '/arkloned/ && /enabled/ {print $1}'))
 }
 
-# Manual backup ArkOS settings
-function manualBackupArkOS() {
-	local keep="${1}"
-
-	"${ARKLONE_DIR}/rclone/scripts/${script}"
-
-	if [ $? = 0 ]; then
-		# Delete ArkOS settings backup file
-		if [ $keep != 0 ]; then
-			sudo rm -v /roms/backup/arkosbackup.tar.gz
-		fi
-
-		return 0
-	else
-		return $?
-	fi
-}
-
 ###########
 # PREFLIGHT
 ###########
@@ -171,8 +153,7 @@ function homeScreen() {
 			"1" "Set cloud service (now: ${REMOTE_CURRENT})" \
 			"2" "Manual sync savefiles/savestates" \
 			"3" "${able} automatic saves sync" \
-			"4" "Manual backup/sync ArkOS Settings" \
-			"5" "Regenerate RetroArch path units" \
+			"4" "Regenerate RetroArch path units" \
 			"x" "Exit" \
 		3>&1 1>&2 2>&3 \
 	)
@@ -181,8 +162,7 @@ function homeScreen() {
 		1) setCloudScreen ;;
 		2) manualSyncSavesScreen ;;
 		3) autoSyncSavesScreen ;;
-		4) manualBackupArkOSScreen ;;
-		5) regenRAunitsScreen ;;
+		4) regenRAunitsScreen ;;
 	esac
 }
 
@@ -262,50 +242,6 @@ function autoSyncSavesScreen() {
 	autoSyncSaves
 
 	homeScreen
-}
-
-# Manual backup ArkOS settings screen
-function manualBackupArkOSScreen() {
-	local script="arklone-arkos.sh"
-	local log_file=$(awk '/^LOG_FILE/ { split($1, a, "="); gsub("\"", "", a[2]); print a[2]}' "${ARKLONE_DIR}/rclone/scripts/${script}")
-
-	alreadyRunning "${script}" "${log_file}"
-
-	if [ $? != 0 ]; then
-		homeScreen
-	else
-		whiptail \
-			--title "${TITLE}" \
-			--yesno \
-				"This will create a backup of your settings at /roms/backup/arkosbackup.tar.gz. Do you want to keep this file after it is uploaded to ${REMOTE_CURRENT}?" \
-				16 56
-
-		local keep=$?
-
-		whiptail \
-			--title "${TITLE}" \
-			--infobox \
-				"Please wait while we back up your settings..." \
-				16 56 8
-
-		manualBackupArkOS "${keep}"
-
-		if [ $? = 0 ]; then
-			whiptail \
-				--title "${TITLE}" \
-				--msgbox \
-					"ArkOS backup synced to ${REMOTE_CURRENT}:ArkOS. Log saved to ${log_file}." \
-					16 56 8
-		else
-			whiptail \
-				--title "${TITLE}" \
-				--msgbox \
-					"Update failed. Please check the log file at ${log_file}." \
-					16 56 8
-		fi
-
-		homeScreen
-	fi
 }
 
 # Regenerate RetroArch savestates/savefiles units screen

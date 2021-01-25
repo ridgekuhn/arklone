@@ -1,11 +1,10 @@
 #!/bin/bash
-USER_CONFIG_DIR="/home/ark/.config"
+USER_CONFIG_DIR="/home/pi/.config"
 
 RETROARCHS=(\
-	"/home/ark/.config/retroarch" \
-	"/home/ark/.config/retroarch32"\
+	"/opt/retropie/configs/all"
 )
-RETROARCH_CONTENT_ROOT="/roms"
+RETROARCH_CONTENT_ROOT="/home/pi/RetroPie/roms"
 
 ARKLONE_DIR="/opt/arklone"
 
