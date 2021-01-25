@@ -1,6 +1,0 @@
-[Path]
-PathChanged=/opt/amiberry/savestates
-Unit=arkloned@-opt-amiberry-savestates\x40amiberry-savestates\x40.service
-
-[Install]
-WantedBy=multi-user.target
